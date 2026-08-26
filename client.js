@@ -391,7 +391,7 @@ window.__ModuleLoader__.load({
                   createElement("div", { key: "btns", className: "ssx-item-btns" }, [
                     createElement("button", { key: "send", className: "ssx-item-send", title: "立即发送", onClick: () => sendNow(e.i) }, "发送"),
                     createElement("button", { key: "edit", className: "ssx-item-edit", title: "编辑（文字回到输入框）", onClick: () => editTask(e.i) }, "编辑"),
-                    createElement("button", { key: "del", className: "ssx-item-del", title: "删除此任务", onClick: () => removeTask(e.i, true) }, "✕"),
+                    createElement("button", { key: "del", className: "ssx-item-del", title: "删除此任务", onClick: () => removeTask(e.i, false) }, "✕"),
                   ]),
                 ])),
             ])
