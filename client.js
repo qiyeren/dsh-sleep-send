@@ -339,6 +339,7 @@ window.__ModuleLoader__.load({
           if (next.length > 0) store.schedules.set(sessionId, next);
           else store.schedules.delete(sessionId);
           persist();
+          store.open = null;
           store.notify();
           fire(sessionId, task);
         };
