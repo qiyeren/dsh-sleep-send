@@ -16,10 +16,12 @@ DSH Web 的**定时发送** Cordis 客户端插件：在输入框右侧提供「
 - **输入框右侧按钮**：`conversation.input.right` 槽位，紧挨发送按钮；空草稿禁用、输入后激活。
 - **智能时段（默认）**：在 `12:00 – 14:00`、`18:00 – 次日 08:00` 两个时段内自动选取**最近的可发送时间**（当前时间 + 2 分钟起；不在时段内则取下一时段起点）。
 - **自定义日期时间**：时间选择器 + 日期快捷（今天 / 明天 / 后天）+ 原生日期选择器（过去日期不可选）；已过时间自动顺延一天；发送时间按具体日期显示（如 `8月19日 周三 12:00`）。
-- **多个定时任务**：确认后追加任务并清空输入框（输入框恢复自由，可连续排队多条）；弹窗内可查看 / 逐个删除已设定任务；工具行芯片显示任务数徽标 + 下次发送时间 + 实时倒计时。
+- **多个定时任务**：确认后追加任务并清空输入框（输入框恢复自由，可连续排队多条）；弹窗内可查看每个任务，并对其**立即发送**、**编辑**（文字回填输入框）或**删除**；工具行芯片显示任务数徽标 + 下次发送时间 + 实时倒计时。
+- **任务操作**：`发送` 跳过定时立即发出并关闭弹窗；`编辑` 把任务文字回填输入框以便修改后重新设定；`✕` 纯删除，不影响输入框内容。
 - **localStorage 持久化**（`dsh.sched-send.v1`）：任务与自定义偏好刷新后自动恢复；恢复时未到期任务保留、**15 分钟内过期的自动补发**、更早的过期任务丢弃。
 - **防误覆盖**：到点发送前若输入框内容已被修改，自动取消本次发送而不是覆盖新内容。
 - **无障碍与性能**：全部可交互元素带 `:focus-visible` 焦点环；动画遵循 `prefers-reduced-motion`；脉冲动画仅使用 transform/opacity。
+- **DSH 0.2.0 兼容**：适配新版槽位契约（`useInput` hook 取草稿状态），配置弹窗改为视口居中模态，在新建会话（输入框居中）时不再溢出屏幕。**本版本起要求 DSH ≥ 0.2.0**。
 
 ## 截图
 
@@ -31,15 +33,15 @@ DSH Web 的**定时发送** Cordis 客户端插件：在输入框右侧提供「
 
 ## 安装
 
-已发布到 npm，一条命令安装到你的 web profile：
+从 GitHub 安装到你的 profile（推荐）：
 
 ```bash
-dsh plugin --profile web add dsh-sleep-send
+dsh plugin --profile desktop add github:qiyeren/dsh-sleep-send
 ```
 
-- 本地开发安装：`dsh plugin --profile web add file:D:\projects\github\sleep-send`
-- 或直接通过 git：`dsh plugin --profile web add github:Awu12277/dsh-sleep-send`
-- 安装后**重启 `dsh web` 生效**；卸载：`dsh plugin --profile web remove dsh-sleep-send`
+- EAC 桌面端请把 `--profile desktop` 换成实际使用的 profile（EAC 为 `web-desktop`）
+- 也可作为普通库安装（源码 / 集成参考）：`npm install dsh-sleep-send`
+- 安装后**重启 DSH 生效**；卸载：`dsh plugin --profile desktop remove dsh-sleep-send`
 
 也可以作为普通库安装（源码 / 集成参考）：
 
@@ -92,8 +94,12 @@ dsh-sleep-send/
 ## 开发
 
 ```bash
-npm test          # node --check src/index.js
+npm test          # node --check index.js && node --check client.js
 ```
+
+## 致谢 / 分支说明
+
+本仓库为 [Awu12277/dsh-sleep-send](https://github.com/Awu12277/dsh-sleep-send) 的活跃维护分支，适配 DSH 官方桌面端 0.2.0。原始作者与版权归属见 [LICENSE](LICENSE)。
 
 ## License
 
