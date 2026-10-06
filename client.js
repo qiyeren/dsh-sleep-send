@@ -94,8 +94,9 @@ window.__ModuleLoader__.load({
       return t.getTime();
     };
 
-    /** Required services: slots（布局挂载点）。timer 通过 ctx.get 获取。 */
-    const inject = ["slots"];
+    /** Required services: slots（布局挂载点）、sessions（inject 钩子取会话 scope）。
+     *  timer 通过 ctx.get 获取。 */
+    const inject = ["slots", "sessions"];
 
     /**
      * Client plugin body。
@@ -202,7 +203,9 @@ window.__ModuleLoader__.load({
       function SchedButton(props) {
         const sessionId = props.sessionId;
         const input = props.input;
-        const inputActions = props.inputActions;
+        // DSH 0.2.0+：input.right 槽位不再直接下发 inputActions，
+        // 改为经本插件 inject 钩子把 submit/setDraft 展开为组件 props。
+        const inputActions = { submit: props.submit, setDraft: props.setDraft };
         const [, force] = useState(0);
         useEffect(() => {
           if (inputActions && typeof inputActions.submit === "function") {
@@ -428,7 +431,26 @@ window.__ModuleLoader__.load({
       document.head.appendChild(styleEl);
 
       slots.inject("conversation.input.right", () => slots.register(
-        { name: "conversation.input.right", id: "sched-send", order: 50, label: () => "定时发送" },
+        {
+          name: "conversation.input.right",
+          id: "sched-send",
+          order: 50,
+          label: () => "定时发送",
+          // DSH 0.2.0+：input.right 槽位 props 不再下发 inputActions，
+          // 改由官方 inject 钩子按 sessionId 提供输入框能力（submit / setDraft）。
+          inject: (sessionId) => {
+            const actx = ctx.sessions.scope(sessionId);
+            if (actx === void 0) throw new Error("sleep-send: session \"" + sessionId + "\" resolved no scope");
+            const conversation = actx.get("conversation");
+            if (conversation === void 0) throw new Error("sleep-send: conversation service unavailable");
+            const shell = conversation.input.for(actx);
+            // 对齐官方 shell.actions 契约：submit() 无参、setDraft(text) 单参。
+            return {
+              submit: () => shell.submit("queue"),
+              setDraft: (text) => shell.setDraft(text),
+            };
+          },
+        },
         SchedButton,
       ));
       slots.inject("conversation.input.overlay", () => slots.register(
