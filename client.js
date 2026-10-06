@@ -202,10 +202,15 @@ window.__ModuleLoader__.load({
       // standard-kit 的 useInput hook 对动态条目不可用，故不调用。
       function SchedButton(props) {
         const sessionId = props.sessionId;
-        const input = props.input;
-        // DSH 0.2.0+：input.right 槽位不再直接下发 inputActions，
-        // 改为经本插件 inject 钩子把 submit/setDraft 展开为组件 props。
-        const inputActions = { submit: props.submit, setDraft: props.setDraft };
+        // DSH 0.2.0：input.right 不再下发 input 快照，改为提供 useInput hook；
+        // props.inputActions 仍存在，可直接使用。
+        // useInput 必须无条件调用，缺失时用常量选择器兜底以保持 hook 顺序稳定。
+        const useInput = props.useInput;
+        const input = typeof useInput === "function"
+          ? useInput((s) => s)
+          : props.input;
+        const inputActions = props.inputActions
+          || { submit: props.submit, setDraft: props.setDraft };
         const [, force] = useState(0);
         useEffect(() => {
           if (inputActions && typeof inputActions.submit === "function") {
@@ -439,16 +444,20 @@ window.__ModuleLoader__.load({
           // DSH 0.2.0+：input.right 槽位 props 不再下发 inputActions，
           // 改由官方 inject 钩子按 sessionId 提供输入框能力（submit / setDraft）。
           inject: (sessionId) => {
-            const actx = ctx.sessions.scope(sessionId);
-            if (actx === void 0) throw new Error("sleep-send: session \"" + sessionId + "\" resolved no scope");
-            const conversation = actx.get("conversation");
-            if (conversation === void 0) throw new Error("sleep-send: conversation service unavailable");
-            const shell = conversation.input.for(actx);
-            // 对齐官方 shell.actions 契约：submit() 无参、setDraft(text) 单参。
-            return {
-              submit: () => shell.submit("queue"),
-              setDraft: (text) => shell.setDraft(text),
-            };
+            try {
+              const actx = ctx.sessions.scope(sessionId);
+              if (actx === void 0) throw new Error("session resolved no scope");
+              const conversation = actx.get("conversation");
+              if (conversation === void 0) throw new Error("conversation service unavailable");
+              const shell = conversation.input.for(actx);
+              // 对齐官方 shell.actions 契约：submit() 无参、setDraft(text) 单参。
+              return {
+                submit: () => shell.submit("queue"),
+                setDraft: (text) => shell.setDraft(text),
+              };
+            } catch (err) {
+              throw err;
+            }
           },
         },
         SchedButton,
