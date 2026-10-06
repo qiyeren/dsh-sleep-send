@@ -261,13 +261,6 @@ window.__ModuleLoader__.load({
           armed ? createElement("span", { key: "s", className: "ssx-pill-sub" }, fmtLeft(next.target - Date.now())) : null,
           armed && list.length > 1 ? createElement("span", { key: "c", className: "ssx-cnt" }, String(list.length)) : null,
         ]));
-        children.push(createElement("button", {
-          key: "cfg",
-          className: "ssx-cfg",
-          title: "定时发送配置",
-          disabled: (!canArm && !armed) || !actionsOk,
-          onClick: open,
-        }, gearIcon));
         if (armed) {
           children.push(createElement("button", { key: "x", className: "ssx-cancel", title: "取消全部定时任务", onClick: cancelAll }, createElement("span", null, "✕")));
         }
