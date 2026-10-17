@@ -97,6 +97,18 @@ dsh-sleep-send/
 npm test          # node --check index.js && node --check client.js
 ```
 
+## 升级后插件被回退？一键恢复
+
+以 GitHub 源安装时，pnpm 会按 `pnpm-lock.yaml` 里锁定的 commit 拉取。若 lock 指向的 commit 早于修复版本，DSH 升级后插件会被覆盖成旧版，表现为：输入框旁出现齿轮按钮、「定时」按钮变灰点不动。
+
+此时运行仓库内的恢复脚本，把正确版本复制回 profile：
+
+```powershell
+pwsh -File restore-sleep-send.ps1
+```
+
+脚本会比对内容（忽略换行差异），一致时不做改动，不一致时先备份旧版再恢复。
+
 ## 致谢 / 分支说明
 
 本仓库为 [Awu12277/dsh-sleep-send](https://github.com/Awu12277/dsh-sleep-send) 的活跃维护分支，适配 DSH 官方桌面端 0.2.0。原始作者与版权归属见 [LICENSE](LICENSE)。
